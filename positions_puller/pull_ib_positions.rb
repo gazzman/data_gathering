@@ -9,9 +9,8 @@ require 'uri'
 
 login_file = ARGV[0]
 directory = ARGV[1]
-stem = ARGV[2]
 
-def pull_ib_positions(token, id, directory = 'InteractiveBrokers', stem = 'Positions')
+def pull_ib_positions(token, id, directory = 'InteractiveBrokers')
     # Goto local directory
     puts 'Prepping directory ' + directory
     begin
@@ -45,7 +44,7 @@ def pull_ib_positions(token, id, directory = 'InteractiveBrokers', stem = 'Posit
         count += 1
     end
     req.close()
-    
+
     ts = resp.root.attributes['timestamp']
     ts = Time.parse(ts)
     puts 'Timestamp is ' + ts.iso8601
@@ -63,23 +62,22 @@ def pull_ib_positions(token, id, directory = 'InteractiveBrokers', stem = 'Posit
     get_uri = URI.parse(get_url)
     data = open(get_uri)
     statement = REXML::Document.new(data)
-    
-    while statement.root!=nil
-        puts 'Statement not ready yet. Please wait just a moment.'
+
+    in_progress = 'Statement generation in progress. Please try again shortly.'
+    while statement.root[1].text==in_progress
+        puts in_progress
         data = open(get_uri)
         statement = REXML::Document.new(data)
         sleep(1)
     end
-    data.seek(0)    
-    
-    fname = stem + '.csv'
-    fname_ts = stem + '_' + ts.iso8601 + '.csv'
+    data.seek(0)
+
+    fname = 'All_Positions.xml'
+    fname_ts = 'All_Positions_%s.xml' % ts.iso8601
     f = File.new(fname_ts, 'w') << data.read()
     f.close()
     data.close()
 
-    
-    # Copy the position data to the simple filename
     puts 'Updating local files'
     if Dir.entries('.').include?(fname)
         FileUtils.rm(fname)
@@ -101,10 +99,8 @@ end
 
 # Second argument is a custom path where you want the data.
 # Default is the name of the brokerage.
-if ARGV[1] and !ARGV[2]
+if ARGV[1]
     pull_ib_positions(token, id, directory = ARGV[1])
-elsif ARGV[1] and ARGV[2]
-    pull_ib_positions(token, id, directory = ARGV[1], stem = ARGV[2])
 else
     pull_ib_positions(token, id)
 end
