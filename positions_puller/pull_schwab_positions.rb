@@ -40,7 +40,11 @@ def get_schwab(user, pass, directory = 'Schwab')
 
     # Goto page    
     b = Watir::Browser.new :firefox, :profile => profile
+    puts 'Logging In'
     schwab_login(b, user, pass)
+
+    # Grab the data
+    puts 'Grabbing Data'
 
     # Show full descriptions
     b.execute_script("javascript:swapColumnWithResize('longtext','ctl00_wpm_P_P_outerDiv','ctl00_wpm_P_P_hDOrP','ctl00_wpm_P_P_hLOrS')")
