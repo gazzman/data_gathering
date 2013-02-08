@@ -60,7 +60,6 @@ module BLogins
         browser.frame(:title => 'Site Navigation').a(:text => 'Log Out').click
     end
 
-
     ########################################################################
     # Positions file updater
     ########################################################################
@@ -71,7 +70,7 @@ module BLogins
             FileUtils.rm('%s.csv' % posfile_stub)
         end
         e = []
-        re = Regexp.new('%s_' % posfile_stub)
+        re = Regexp.new('%s' % posfile_stub)
         Dir.entries('.').select{|f| f =~ re}.each {|i|
             e << [i, File.ctime(i)]
         }
