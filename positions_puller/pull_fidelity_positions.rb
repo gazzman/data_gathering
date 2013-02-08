@@ -8,6 +8,10 @@ require 'headless'
 require 'time'
 require 'watir-webdriver'
 
+require 'blogins'
+
+include BLogins
+
 login_file = ARGV[0]
 directory = ARGV[1]
 
@@ -27,7 +31,6 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     # Set some variables
     autosave_mime_types = 'text/comma-separated-values,text/csv'
     download_directory = "#{Dir.pwd}"
-    url = 'http://401k.com'
 
     # Autodownload profile (thanks to WatirMelon!)
     profile = Selenium::WebDriver::Firefox::Profile.new
@@ -36,15 +39,9 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     profile['browser.helperApps.neverAsk.saveToDisk'] = autosave_mime_types
 
     # Goto page    
-    puts 'Opening url ' + url
     b = Watir::Browser.new :firefox, :profile => profile
-    b.goto(url)
-
-    # Login
-    puts 'Logging In'
-    b.text_field(:name => 'temp_id').set user
-    b.text_field(:name => 'PIN').set pass
-    b.input(:id => 'logButton').click
+    puts 'Logging in'
+    fidelity_login(b, user, pass)
 
     # Grab the data
     puts 'Grabbing Data'
@@ -65,7 +62,7 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
 
     # Logout
     puts 'Logging out'
-    b.frame(:title => 'Site Navigation').a(:href => '/Catalina/LongBeach?Command=LOGOUT&Realm=netbenefits').click
+    fidelity_logout(b)
     b.close()
 
     # Copy the position data to the simple filename
