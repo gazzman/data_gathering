@@ -60,4 +60,27 @@ module BLogins
         browser.frame(:title => 'Site Navigation').a(:text => 'Log Out').click
     end
 
+
+    ########################################################################
+    # Positions file updater
+    ########################################################################
+    def update_local_positions_file(posfile_stub)
+        # Copy the position data to the simple filename
+        puts 'Updating local files'
+        if Dir.entries('.').include?('%s.csv' % posfile_stub)
+            FileUtils.rm('%s.csv' % posfile_stub)
+        end
+        e = []
+        re = Regexp.new('%s_' % posfile_stub)
+        Dir.entries('.').select{|f| f =~ re}.each {|i|
+            e << [i, File.ctime(i)]
+        }
+        latest = e.sort_by{|i| i[1]}[-1][0]
+
+        puts 'Latest datafile is ' + latest
+        FileUtils.cp(latest, '%s.csv' % posfile_stub)
+        puts "Copied to %s.csv\n\n" % posfile_stub
+        FileUtils.cd('..')
+    end
+
 end
