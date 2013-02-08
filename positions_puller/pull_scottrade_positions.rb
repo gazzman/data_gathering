@@ -8,6 +8,10 @@ require 'headless'
 require 'time'
 require 'watir-webdriver'
 
+require 'blogins'
+
+include BLogins
+
 login_file = ARGV[0]
 directory = ARGV[1]
 
@@ -27,7 +31,6 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     # Set some variables
     autosave_mime_types = 'text/comma-separated-values,text/csv,application/csv'
     download_directory = "#{Dir.pwd}"
-    url = 'http://www.scottrade.com/'
 
     # Autodownload profile (thanks to WatirMelon!)
     profile = Selenium::WebDriver::Firefox::Profile.new
@@ -36,17 +39,10 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     profile['browser.helperApps.neverAsk.saveToDisk'] = autosave_mime_types
 
     # Goto page    
-    puts 'Opening url ' + url
     b = Watir::Browser.new :firefox, :profile => profile
-    b.goto(url)
-
-    # Login
     puts 'Logging In'
-    b.text_field(:name => 'account').set user
-    b.text_field(:name => 'password').set pass
-    b.select_list(:name => 'firstPage').select 'Positions'
-    b.input(:class => 'login-btn').click
-
+    scottrade_login(b, user, pass)
+    
     # Grab the data
     puts 'Grabbing Data'
     
@@ -66,19 +62,8 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     end
 
     # Logout
-    puts 'Logging out'
-    b.button(:class => 'LogoffButton').click
+    scottrade_logout(b)
     b.close()
-
-    # Copy the position data to the simple filename
-    puts 'Updating local files'
-    if Dir.entries('.').include?('DetailPositions.csv')
-        FileUtils.rm('DetailPositions.csv')
-    end
-    latest = Dir.entries('.').select{|f| f =~ /DetailPositions/}.sort[-1]
-    puts 'Latest datafile is ' + latest
-    FileUtils.cp(latest, 'DetailPositions.csv')
-    puts 'Copied to DetalPositions.csv'
 
     # Store the cash data
     fname = 'Cash.csv'
@@ -101,7 +86,9 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     puts 'Latest datafile is ' + fname_ts
     FileUtils.cp(fname_ts, fname)
     puts "Copied to " + fname + "\n\n"
-    FileUtils.cd('..')
+
+    # Copy the position data to the simple filename
+    update_local_positions_file('DetailPositions')
 
     headless.destroy
 end
