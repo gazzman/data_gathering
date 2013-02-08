@@ -16,8 +16,8 @@ login_file = ARGV[0]
 directory = ARGV[1]
 
 def get_schwab(user, pass, directory = 'Schwab')
-#    headless = Headless.new
-#    headless.start
+    headless = Headless.new
+    headless.start
 
     # Goto local directory
     puts 'Prepping directory ' + directory
