@@ -66,20 +66,7 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     b.close()
 
     # Copy the position data to the simple filename
-    puts 'Updating local files'
-    if Dir.entries('.').include?('Portfolio_Position.csv')
-        FileUtils.rm('Portfolio_Position.csv')
-    end
-    e = []
-    Dir.entries('.').select{|f| f =~ /Portfolio_Position_/}.each {|i|
-        e << [i, File.ctime(i)]
-    }
-    latest = e.sort_by{|i| i[1]}[-1][0]
-
-    puts 'Latest datafile is ' + latest
-    FileUtils.cp(latest, 'Portfolio_Position.csv')
-    puts "Copied to Portfolio_Position.csv\n\n"
-    FileUtils.cd('..')
+    update_local_positions_file('Portfolio_Position')
 
     headless.destroy
 end
