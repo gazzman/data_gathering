@@ -59,8 +59,9 @@ def get_schwab(user, pass, directory = 'Schwab')
 
     # Pull data for bank account
     b.a(:href => 'https://investing.schwab.com/secure/cc/accounts?cmsid=P-1924981&lvl1=accounts').click
+    bank_acct = b.span(:id => 'spanOverlayAccountId').text.sub('...','')
+    bank_desc = b.span(:id => 'spanOverlayAccountName').text
     bank_cash = b.span(:id => 'ctl00_wpm_ac_ac_ltd').text
-
     # Logout
     puts 'Logging out'
     schwab_logout(b)
@@ -70,14 +71,14 @@ def get_schwab(user, pass, directory = 'Schwab')
     fname = 'Bank.csv'
     fname_ts = 'Bank_' + Time.now.getutc.iso8601 + '.csv'
 
-    headers = ['Symbol', 'Market Value']
+    headers = ['Symbol', 'Name', 'Market Value']
     f = File.new(fname_ts, 'w')
     f << 'Positions for Bank as of %s' % Time.now.strftime('%m/%d/%Y %H:%M:%S')
-    f << "\nBank XXXX-\n"
+    f << "\nBank XXXX-%s\n" % bank_acct
     csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
     head_row = FCSV::Row.new(headers, headers, header_row = true)
     csv << head_row
-    field_row = FCSV::Row.new(headers, ['Cash', bank_cash])
+    field_row = FCSV::Row.new(headers, ['Cash', bank_desc, bank_cash])
     csv << field_row
     f << "total market value"
     csv.close()
