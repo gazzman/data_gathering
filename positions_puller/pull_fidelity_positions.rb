@@ -1,13 +1,4 @@
 #!/usr/bin/ruby
-require 'rubygems'
-
-require 'csv'
-require 'fastercsv'
-require 'fileutils'
-require 'headless'
-require 'time'
-require 'watir-webdriver'
-
 require 'blogins'
 
 include BLogins
