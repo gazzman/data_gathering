@@ -7,11 +7,11 @@ require 'watir-webdriver'
 require 'blogins'
 
 class SchwabData
+    '''
+        A class for gathering research data from Scwhwab.
+    '''
     include BLogins
     attr_accessor :browser, :frame, :main, :logger, :country_data, :alt_id, :headers, :data
-
-
-
 
     def initialize(user, pass, opts={})
         default = {:logfile => STDOUT, :log_age => nil}
