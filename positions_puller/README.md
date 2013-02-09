@@ -1,4 +1,4 @@
-positions_puller
+data_gathering/positions_puller
 ================
 
 Ruby scripts to pull financial position data from various brokers.
