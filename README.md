@@ -22,7 +22,7 @@ login username, and the second line is the login password.
 
 
 =============
-./fund_research
+data_gathering/fund_research
 =============
 
 ------------------------
