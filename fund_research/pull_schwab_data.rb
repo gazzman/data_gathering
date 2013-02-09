@@ -8,6 +8,12 @@ require 'time'
 
 require 'schwab_data'
 
+'''
+    This is a command-line script for gathering research data from
+    Schwab. It takes a list of ticker symbols and pulls as much info 
+    as it can and stores the data in a csv file.
+'''
+
 Thread.abort_on_exception = true
 
 # Eat the arguments (only the first two are necessary)
