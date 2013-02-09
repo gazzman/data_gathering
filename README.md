@@ -16,6 +16,7 @@ for a Watir::Browser to log in and out of various websites.
 The login_file
 --------------
 
-The fidelity_fund_tickers and pull_schwab_data scripts take as their first
-argument the name of a two-line file. The first line of this file is the the 
-login username, and the second line is the login password.
+Many of the scripts in this repo take as their first argument the name of a
+two-line file. With the exception of the pull_ib_positions.rb script, the 
+first line of this file is the the login username, and the second line is the 
+login password.
