@@ -134,7 +134,7 @@ class SchwabData
         @data[header] = d
         
         if @type!='Stocks'
-            header = prefix + 'Morningstar Category'
+            header = 'fund.' + 'Morningstar Category'
             @headers << header
             @data[header] = first_glance.div(:class => 'frameBottom').a.text
         end
