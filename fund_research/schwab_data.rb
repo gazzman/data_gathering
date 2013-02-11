@@ -109,7 +109,7 @@ class SchwabData
         @main = @frame.div(:id => 'mainContent')
     end
 
-    def get_description(prefix='')
+    def get_description(prefix='tickers.')
         @logger.info 'Getting description'
         header = prefix + 'Description'
         @headers << header
@@ -206,18 +206,19 @@ class SchwabData
     # pull_data
     ########################################################################
     def pull_data(symbol)
+        prefix = 'tickers.'
         # Store symbol
-        header = 'Symbol'
+        header = prefix + 'ticker'
         @headers = [header]
         @data = {header => symbol}
 
         if @alt_id[symbol] then symbol = @alt_id[symbol] end
 
         navigate_to_research_for(symbol)
-        header = 'Type'
+        header = prefix + 'type'
         @headers << header
         @data[header] = @type[0...-1]
-        get_description
+        get_description(prefix)
 
         @logger.info ['Starting data collection for', @data['Type'], symbol].join(' ')
         if @type == 'Stocks'
