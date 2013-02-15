@@ -69,7 +69,7 @@ def get_schwab(user, pass, directory = 'Schwab')
     csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
     head_row = FCSV::Row.new(headers, headers, header_row = true)
     csv << head_row
-    field_row = FCSV::Row.new(headers, ['Cash', bank_desc, bank_cash])
+    field_row = FCSV::Row.new(headers, ['USD', bank_desc, bank_cash])
     csv << field_row
     f << "total market value"
     csv.close()
