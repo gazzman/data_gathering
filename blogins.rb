@@ -70,7 +70,7 @@ module BLogins
     ########################################################################
     # Positions file updater
     ########################################################################
-    def update_local_positions_file(posfile_stub)
+    def update_local_positions_file(posfile_stub, date=nil)
         # Copy the position data to the simple filename
         puts 'Updating local files'
         if Dir.entries('.').include?('%s.csv' % posfile_stub)
@@ -83,10 +83,22 @@ module BLogins
         }
         latest = e.sort_by{|i| i[1]}[-1][0]
 
-        puts 'Latest datafile is ' + latest
+        if date
+            temp = File.new('temp', 'w')
+            temp << "Positions as of %s\n" % date
+            data = File.open(latest, 'r')
+            temp << data.read()
+            temp.close()
+            FileUtils.rm(latest)
+            FileUtils.cp('temp', latest)
+            FileUtils.rm('temp')
+        end
         FileUtils.cp(latest, '%s.csv' % posfile_stub)
+        puts 'Latest datafile is ' + latest
         puts "Copied to %s.csv\n\n" % posfile_stub
         FileUtils.cd('..')
+        
+
     end
 
 end
