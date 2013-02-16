@@ -62,14 +62,16 @@ def get_schwab(user, pass, directory = 'Schwab')
     fname = 'Bank.csv'
     fname_ts = 'Bank_' + Time.now.getutc.iso8601 + '.csv'
 
-    headers = ['Symbol', 'Name', 'Market Value']
+
+    headers = ['Symbol', 'Name', 'Quantity', 'Price', 'Market Value']
     f = File.new(fname_ts, 'w')
     f << 'Positions for Bank as of %s' % Time.now.strftime('%m/%d/%Y %H:%M:%S')
     f << "\nBank XXXX-%s\n" % bank_acct
     csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
     head_row = FCSV::Row.new(headers, headers, header_row = true)
     csv << head_row
-    field_row = FCSV::Row.new(headers, ['USD', bank_desc, bank_cash])
+    field_row = FCSV::Row.new(headers, ['USD', bank_desc, bank_cash, 1,
+                                        bank_cash])
     csv << field_row
     f << "total market value"
     csv.close()
