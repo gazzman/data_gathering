@@ -49,7 +49,11 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     while !b.frame(:title => 'Main Content').body.a(:onclick => 'displayCSVPage();').exists?
         sleep(0.5)
     end
-    b.frame(:title => 'Main Content').body.a(:onclick => 'displayCSVPage();').click
+    frame = b.frame(:title => 'Main Content')
+    frame.body.a(:onclick => 'displayCSVPage();').click
+    date = frame.div(:class => 'foot-notes').p.text.split[-2...-1]
+    date = '%s 16:00:00' % date
+    date = Time.parse(date).iso8601
 
     # Logout
     puts 'Logging out'
@@ -57,7 +61,7 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     b.close()
 
     # Copy the position data to the simple filename
-    update_local_positions_file('Portfolio_Position')
+    update_local_positions_file('Portfolio_Position', date)
 
     headless.destroy
 end
