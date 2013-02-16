@@ -117,8 +117,7 @@ headless = Headless.new
 headless.start
 sfds = []
 for i in 0...num_threads
-    sfds << SchwabData.new(user, pass, {:logfile => 'output.log',
-                                            :log_age => 'weekly'})
+    sfds << SchwabData.new(user, pass)
 end
 
 threads = []
