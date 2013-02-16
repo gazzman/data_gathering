@@ -60,14 +60,17 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     fname = 'Cash.csv'
     fname_ts = 'Cash_' + Time.now.getutc.iso8601 + '.csv'
 
-    headers = ['﻿Symbol', 'Description', 'Mkt Value']
+    headers = ['﻿Symbol', 'Description', 'Qty', 'Last Price', 'Mkt Value']
+
     f = File.new(fname_ts, 'w')
     csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
     head_row = FCSV::Row.new(headers, headers, header_row = true)
     csv << head_row
-    field_row = FCSV::Row.new(headers, ['USD', 'Brokerage', broker_cash])
+    field_row = FCSV::Row.new(headers, ['USD', 'Brokerage', broker_cash, 1, 
+                                        broker_cash])
     csv << field_row
-    field_row = FCSV::Row.new(headers, ['USD', 'Bank', bank_cash])
+    field_row = FCSV::Row.new(headers, ['USD', 'Bank', bank_cash, 1, 
+                                        broker_cash])
     csv << field_row
     csv.close()
 
