@@ -57,12 +57,14 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     b.close()
 
     # Store the cash data
+    date = Time.now.iso8601    
     fname = 'Cash.csv'
-    fname_ts = 'Cash_' + Time.now.getutc.iso8601 + '.csv'
+    fname_ts = 'Cash_' + date + '.csv'
 
     headers = ['﻿Symbol', 'Description', 'Qty', 'Last Price', 'Mkt Value']
 
     f = File.new(fname_ts, 'w')
+    f << "Positions as of %s\n" % date
     csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
     head_row = FCSV::Row.new(headers, headers, header_row = true)
     csv << head_row
@@ -82,7 +84,7 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     puts "Copied to " + fname + "\n\n"
 
     # Copy the position data to the simple filename
-    update_local_positions_file('DetailPositions')
+    update_local_positions_file('DetailPositions', date=date)
 
     headless.destroy
 end
