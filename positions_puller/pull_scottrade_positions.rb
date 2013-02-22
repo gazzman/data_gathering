@@ -72,7 +72,7 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
                                         broker_cash])
     csv << field_row
     field_row = FCSV::Row.new(headers, ['USD', 'Bank', bank_cash, 1, 
-                                        broker_cash])
+                                        bank_cash])
     csv << field_row
     csv.close()
 
