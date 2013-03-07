@@ -6,12 +6,11 @@ include BLogins
 login_file = ARGV[0]
 directory = ARGV[1]
 
-def pull_fidelity_positions(user, pass, directory = 'Fidelity')
-#    headless = Headless.new
-#    headless.start
+def pull_fidelity_transactions(user, pass, directory = 'Fidelity')
+    headless = Headless.new
+    headless.start
 
     date = (Time.now - 24*60*60)
-
 
     # Goto local directory
     puts 'Prepping directory ' + directory
@@ -45,10 +44,10 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     f = f.frame(:title => 'Section Content')
     f.a(:text => 'Transaction History').when_present.click
     f.span(:text => 'Download Transaction History').when_present.click
-    f.select_list(:name => 'dropDownSelection').select 'Custom Date Range'
+    f.select_list(:name => 'dropDownSelection').when_present.select 'Custom Date Range'
     f.text_field(:name => 'dateFrom').when_present.set '01/01/1990'
     f.text_field(:name => 'dateTo').when_present.set date.strftime('%m/%d/%Y')
-    f.select_list(:name => 'fileFormatDropDownSelection').select 'CSV'
+    f.select_list(:name => 'fileFormatDropDownSelection').when_present.select 'CSV'
     f.button(:text => 'Download').when_present.click
 
     # Logout
@@ -59,7 +58,7 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     # Copy the position data to the simple filename
     update_local_positions_file('history', date.iso8601)
 
-#    headless.destroy
+    headless.destroy
 end
 
 # Rudimentary and insecure way of getting login data
@@ -75,7 +74,7 @@ end
 # Second argument is a custom path where you want the data.
 # Default is the name of the brokerage.
 if ARGV[1]
-    pull_fidelity_positions(user, pass, directory = ARGV[1])
+    pull_fidelity_transactions(user, pass, directory = ARGV[1])
 else
-    pull_fidelity_positions(user, pass)
+    pull_fidelity_transactions(user, pass)
 end
