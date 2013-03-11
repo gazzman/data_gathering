@@ -40,7 +40,7 @@ def pull_scottrade_transactions(user, pass, directory = 'Scottrade')
     b.select_list(:id => 'Transactions1_ddlDate').when_present.select 'All Available'
     b.button(:id => 'Transactions1_ibtnGo').when_present.click
     b.span(:text => 'Export to Excel').click
-    update_local_positions_file('Transactions')
+    update_local_positions_file('Transactions', date=nil, acct_num=user)
     FileUtils.cd(directory)
 
     # Grab the banking data
