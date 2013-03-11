@@ -70,7 +70,7 @@ module BLogins
     ########################################################################
     # Positions file updater
     ########################################################################
-    def update_local_positions_file(posfile_stub, date=nil)
+    def update_local_positions_file(posfile_stub, date=nil, acct_num=nil)
         # Copy the position data to the simple filename
         puts 'Updating local files'
         if Dir.entries('.').include?('%s.csv' % posfile_stub)
@@ -86,6 +86,16 @@ module BLogins
         if date
             temp = File.new('temp', 'w')
             temp << "Positions as of %s\n" % date
+            data = File.open(latest, 'r')
+            temp << data.read()
+            temp.close()
+            FileUtils.rm(latest)
+            FileUtils.cp('temp', latest)
+            FileUtils.rm('temp')
+        end
+        if acct_num
+            temp = File.new('temp', 'w')
+            temp << "Account_Num %s\n" % acct_num
             data = File.open(latest, 'r')
             temp << data.read()
             temp.close()
