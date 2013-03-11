@@ -38,6 +38,7 @@ def pull_fidelity_transactions(user, pass, directory = 'Fidelity')
 
     # Grab the data
     puts 'Grabbing Data'
+    acct_num = b.span(:class => 'acc-type').text.split[-1]
     b.a(:class => 'top-quick-link').click
     b.a(:text => 'Transaction History').click
     f = b.frame(:title => 'Main Content').frame(:title => 'Savings and Retirement Section')
@@ -56,7 +57,7 @@ def pull_fidelity_transactions(user, pass, directory = 'Fidelity')
     b.close()
 
     # Copy the position data to the simple filename
-    update_local_positions_file('history')
+    update_local_positions_file('history', acct_num=acct_num)
 
     headless.destroy
 end
