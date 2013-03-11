@@ -57,7 +57,7 @@ def pull_fidelity_transactions(user, pass, directory = 'Fidelity')
     b.close()
 
     # Copy the position data to the simple filename
-    update_local_positions_file('history', acct_num=acct_num)
+    update_local_positions_file('history', date=nil, acct_num=acct_num)
 
     headless.destroy
 end
