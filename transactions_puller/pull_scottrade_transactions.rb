@@ -57,7 +57,7 @@ def pull_scottrade_transactions(user, pass, directory = 'Scottrade')
         fname = 'trans_%s.csv' % acc_num
         f.div(:class => 'csvLink').a.click
         sleep(3)
-        update_local_positions_file('trans')
+        update_local_positions_file('trans', date=nil, acct_num=user)
         FileUtils.cd(directory)
         FileUtils.cp('trans.csv', fname)
         puts "Copied to %s\n\n" % fname
