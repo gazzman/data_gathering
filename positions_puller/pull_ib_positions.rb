@@ -20,7 +20,7 @@ def pull_ib_positions(token, id, directory = 'InteractiveBrokers')
         FileUtils.cd(directory)
     end
 
-    base_url = 'https://www.interactivebrokers.com/Universal/servlet/'
+    base_url = 'https://gdcdyn.interactivebrokers.com/Universal/servlet/'
     req = 'FlexStatementService.SendRequest?t=' + token + '&q=' + id
     req_url = base_url + req
     req_uri = URI.parse(req_url)
