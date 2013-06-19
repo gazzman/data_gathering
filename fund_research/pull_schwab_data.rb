@@ -78,7 +78,7 @@ def get_data(user, pass, sd, symbols, progname=nil)
             headers.each {|header|
                 if header.index('價') then raise NameError, "Asian characters; retrying" end
             }
-        rescue *errs => err
+        rescue Timeout::Error, *errs => err
             try += 1
             e_msg = "Exception " + err.class.to_s
             e_msg += " raised with message \'" + err.to_s
