@@ -18,7 +18,7 @@ module BLogins
         opts = defaults.merge(opts)
         
         browser.goto(opts[:url])
-        form = browser.form(:id => 'SignonForm')
+        form = browser.form(:id => 'login')
 
         form.text_field(:name => 'SignonAccountNumber').when_present.click
         form.text_field(:name => 'SignonAccountNumber').when_present.set user
