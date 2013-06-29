@@ -260,6 +260,13 @@ class SchwabData
         @headers << header
         @data[header] = @frame.div(:id => 'modFirstGlance').div(:class => 'subLabel').text.split[-1]
 
+        if @frame.div(:id => 'modFirstGlance').span(:text => /Schwab Equity Rating/).exists?
+            @logger.info 'Getting Schwab Equity Ratng'
+            header = table + 'schwab_equity_rating'
+            @headers << header
+            @data[header] = @frame.div(:id => 'modFirstGlance').span(:text => /Schwab Equity Rating/).text.split[-1]
+        end
+
         @logger.info 'Getting country info'
         header = 'country_allocation.date'
         @headers << header
