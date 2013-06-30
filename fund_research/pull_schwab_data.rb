@@ -59,7 +59,10 @@ File.open(login_file, 'r') {|f|
 def get_data(user, pass, sd, symbols, progname=nil)
     errs = [Watir::Exception::UnknownFrameException, 
             Watir::Exception::UnknownObjectException,
-            Watir::Wait::TimeoutError, NameError,
+            Watir::Wait::TimeoutError, 
+            NameError, 
+            Timeout::Error,
+            Errno::ETIMEDOUT,
             Selenium::WebDriver::Error::StaleElementReferenceError]
 
     sd.logger.progname = progname
@@ -76,9 +79,9 @@ def get_data(user, pass, sd, symbols, progname=nil)
         begin
             headers, data = sd.pull_data(s)
             headers.each {|header|
-                if header.index('價') then raise NameError, "Asian characters; retrying" end
+                if (header =~ /^[ %&'()*,-.A-Za-z0-9]+$/) != 0 then raise NameError, "Asian characters; retrying" end
             }
-        rescue Timeout::Error, Errno::ETIMEDOUT, Watir::Wait::TimeoutError, *errs => err
+        rescue *errs => err
             try += 1
             e_msg = "Exception " + err.class.to_s
             e_msg += " raised with message \'" + err.to_s
