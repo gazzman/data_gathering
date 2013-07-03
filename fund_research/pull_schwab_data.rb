@@ -60,6 +60,7 @@ def get_data(user, pass, sd, symbols, progname=nil)
     errs = [Watir::Exception::UnknownFrameException, 
             Watir::Exception::UnknownObjectException,
             Watir::Wait::TimeoutError, 
+            NameError,
             Timeout::Error,
             Errno::ETIMEDOUT,
             Selenium::WebDriver::Error::StaleElementReferenceError]
@@ -82,6 +83,16 @@ def get_data(user, pass, sd, symbols, progname=nil)
                     raise  NameError, "Asian characters in header %s retrying" % header
                 end
             }
+            csv = FCSV.open(fname_ts, 'w')
+            csv << FCSV::Row.new(headers, headers, header_row = true)
+            csv << FCSV::Row.new(headers, data)
+            csv.close
+            sd.logger.info 'Wrote data to ' + fname_ts
+
+            # Copy the position data to the simple filename
+            if Dir.entries('.').include?(fname) then FileUtils.rm(fname) end
+            FileUtils.cp(fname_ts, fname)
+            sd.logger.info 'Copied data to ' + fname
         rescue *errs => err
             try += 1
             e_msg = "Exception " + err.class.to_s
@@ -100,24 +111,8 @@ def get_data(user, pass, sd, symbols, progname=nil)
                 sd.logger.error f_msg
                 sd.reinit_browser()
             end    
-        rescue NameError => err
-            e_msg = "Exception " + err.class.to_s
-            e_msg += " raised with message \'" + err.to_s
-            e_msg += "\' on symbol " + symbol
-            sd.logger.error e_msg
-            sd.reinit_browser()
         end
 
-        csv = FCSV.open(fname_ts, 'w')
-        csv << FCSV::Row.new(headers, headers, header_row = true)
-        csv << FCSV::Row.new(headers, data)
-        csv.close
-        sd.logger.info 'Wrote data to ' + fname_ts
-
-        # Copy the position data to the simple filename
-        if Dir.entries('.').include?(fname) then FileUtils.rm(fname) end
-        FileUtils.cp(fname_ts, fname)
-        sd.logger.info 'Copied data to ' + fname
     end
     sd.close()
 end    
