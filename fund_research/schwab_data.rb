@@ -315,7 +315,6 @@ class SchwabData
             }
         end            
 
-
         @logger.info 'Getting Mkt Cap Info'
         header = 'mkt_cap_allocation.date'
         @headers << header
@@ -359,6 +358,50 @@ class SchwabData
                 @data[header] = '100%'
             end
         }
+
+        # Get equity rating info
+        if @main.div(:id => 'sectorOverviewModule').ul(:class => 'list dividers rules').exists?
+            som = @main.div(:id => 'sectorOverviewModule').ul(:class => 'list dividers rules')
+            # Get the Schwab industry rating data
+            field, rating, industry, date = som.li(:text => /Schwab Industry Rating/).text.split(/\n/)
+            rating = rating.split()[-1]
+            date = date.split()[-1]
+
+            header = table + field
+            @headers << header
+            @data[header] = rating
+
+            if @data[table + 'Industry'].downcase != industry.downcase
+                @data[table + 'Industry'] = industry
+            end
+
+            header = '%s%s_%s' % [table, field, 'date']
+            @headers << header
+            @data[header] = date
+
+            # Get Schwab Sector View
+            field, view = som.li(:text => /Schwab Sector View/).text.split(/\n/)
+            header = table + field
+            @headers << header
+            @data[header] = view
+
+            # Get Ned Davis sector highlights
+            field, sector, ignore, date, recommendation = som.li(:text => /Ned Davis Research Sector Highlights/).text.split(/\n/)
+            date = date.split()[-1]
+            recommendation = recommendation.split()[-1]
+
+            header = table + field
+            @headers << header
+            @data[header] = recommendation
+
+            header = '%s%s_%s' % [table, field, 'date']
+            @headers << header
+            @data[header] = date
+
+            if @data[table + 'Sector'].downcase != sector.downcase
+                @data[table + 'Sector'] = sector
+            end
+        end
 
         navigate_to_tab('peers')
         @logger.info 'Getting peer data'
