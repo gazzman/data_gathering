@@ -104,6 +104,7 @@ def get_data(user, pass, sd, symbols, progname=nil)
             e_msg = "Exception " + err.class.to_s
             e_msg += " raised with message \'" + err.to_s
             e_msg += "\' on symbol " + symbol
+            sd.logger.error e_msg
             sd.reinit_browser()
         end
 
