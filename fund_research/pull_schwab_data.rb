@@ -79,7 +79,7 @@ def get_data(user, pass, sd, symbols, progname=nil)
         begin
             headers, data = sd.pull_data(s)
             headers.each {|header|
-                if (header =~ /^[^\\]([:punct:]|[:alnum:]|[:blank:]+$)/) != 0 
+                if (header =~ /^[^\\][[:punct:]|[:alnum:]|[:blank:]]+$/) != 0 
                     raise  NameError, "Asian characters in header %s retrying" % header
                 end
             }
