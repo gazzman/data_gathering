@@ -66,6 +66,7 @@ class SchwabData
             e_msg += "\' on reinit"
             @logger.error e_msg
             reinit_browser()
+        end
         @logger.info 'Reinitialization complete'
     end
 
