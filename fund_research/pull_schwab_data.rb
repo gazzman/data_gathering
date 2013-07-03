@@ -101,6 +101,9 @@ def get_data(user, pass, sd, symbols, progname=nil)
                 sd.reinit_browser()
             end    
         rescue NameError => err
+            e_msg = "Exception " + err.class.to_s
+            e_msg += " raised with message \'" + err.to_s
+            e_msg += "\' on symbol " + symbol
             sd.reinit_browser()
         end
 
