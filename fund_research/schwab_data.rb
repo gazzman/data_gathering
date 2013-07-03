@@ -58,7 +58,14 @@ class SchwabData
         @browser.close
         @logger.info 'Opening new @browser'
         @browser = Watir::Browser.new
-        login
+        begin
+            login
+        rescue Timeout::Error => err
+            e_msg = "Exception " + err.class.to_s
+            e_msg += " raised with message \'" + err.to_s
+            e_msg += "\' on reinit"
+            @logger.error e_msg
+            reinit_browser()
         @logger.info 'Reinitialization complete'
     end
 
