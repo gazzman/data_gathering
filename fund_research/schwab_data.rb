@@ -60,7 +60,7 @@ class SchwabData
         @browser = Watir::Browser.new
         begin
             login
-        rescue Timeout::Error => err
+        rescue Timeout::Error, Errno::ETIMEDOUT => err
             e_msg = "Exception " + err.class.to_s
             e_msg += " raised with message \'" + err.to_s
             e_msg += "\' on reinit"
