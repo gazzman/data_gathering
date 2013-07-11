@@ -41,10 +41,10 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     end
     b.a(:title => 'Accounts').click
 
-    while !b.a(:title => 'Portfolio Investments').exists?
+    while !b.frame(:name => 'mainapp').a(:text => /Portfolio Investments/).exists?
         sleep(0.5)
     end
-    b.a(:title => 'Portfolio Investments').click
+    b.frame(:name => 'mainapp').a(:text => /Portfolio Investments/).click
 
     while !b.frame(:title => 'Main Content').body.a(:onclick => 'displayCSVPage();').exists?
         sleep(0.5)
