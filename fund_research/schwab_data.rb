@@ -327,9 +327,14 @@ class SchwabData
         header = 'mkt_cap_allocation.date'
         @headers << header
         @data[header] = Date.today.to_s
-        header = 'mkt_cap_allocation.' + eds[2].tbody.tr.th.span.text[1...-1]
-        @headers << header
-        @data[header] = '100%'
+        begin
+            header = 'mkt_cap_allocation.' + eds[2].tbody.tr.th.span.text[1...-1]
+            @headers << header
+            @data[header] = '100%'
+        rescue TypeError => err
+            @logger.error 'No Mkt Cap category for %s' % symbol
+        end
+        
         eds[2].tbody.trs.each {|tr|
             header = tr.th.text.split("(")[0].strip
             header = table + header.split("\n")[0].strip
@@ -340,15 +345,18 @@ class SchwabData
         @logger.info 'Getting funds holding this stock'
         hs = @main.div(:id => 'fundsHoldingThisCompanyModule').thead.ths.collect {|th| th.text}
         trs = @main.div(:id => 'fundsHoldingThisCompanyModule').tbody.trs
-        for i in 0...trs.length
-            tr = trs[i]
-            hs.each_with_index {|h, hi|
-                header = table + [h, (i+1).to_s].join(' ')
-                @headers << header
-                @data[header] = tr.tds[hi].text
-            }
+        if @main.div(:id => 'fundsHoldingThisCompanyModule').tbody.text =~ /No ETFs Available/
+            @logger.error 'No ETFs holding %s' % symbol
+        else
+            for i in 0...trs.length
+                tr = trs[i]
+                hs.each_with_index {|h, hi|
+                    header = table + [h, (i+1).to_s].join(' ')
+                    @headers << header
+                    @data[header] = tr.tds[hi].text
+                }
+            end
         end
-
         navigate_to_subtab('sector overview')
         @logger.info 'Getting sector categories'
         @main.table(:id => 'perfVsPeersTable').wait_until_present
