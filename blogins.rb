@@ -70,11 +70,13 @@ module BLogins
     ########################################################################
     # Positions file updater
     ########################################################################
-    def update_local_positions_file(posfile_stub, date=nil, acct_num=nil)
+    def update_local_positions_file(posfile_stub, date=nil, acct_num=nil, 
+                                    extension='csv')
+        puts extension
         # Copy the position data to the simple filename
         puts 'Updating local files'
-        if Dir.entries('.').include?('%s.csv' % posfile_stub)
-            FileUtils.rm('%s.csv' % posfile_stub)
+        if Dir.entries('.').include?('%s.%s' % [posfile_stub, extension])
+            FileUtils.rm('%s.%s' % [posfile_stub, extension])
         end
         e = []
         re = Regexp.new('%s' % posfile_stub)
@@ -103,9 +105,9 @@ module BLogins
             FileUtils.cp('temp', latest)
             FileUtils.rm('temp')
         end
-        FileUtils.cp(latest, '%s.csv' % posfile_stub)
+        FileUtils.cp(latest, '%s.%s' % [posfile_stub, extension])
         puts 'Latest datafile is ' + latest
-        puts "Copied to %s.csv\n\n" % posfile_stub
+        puts "Copied to %s.%s\n\n" % [posfile_stub, extension]
         FileUtils.cd('..')
         
 
