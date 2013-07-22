@@ -72,7 +72,6 @@ module BLogins
     ########################################################################
     def update_local_positions_file(posfile_stub, date=nil, acct_num=nil, 
                                     extension='csv')
-        puts extension
         # Copy the position data to the simple filename
         puts 'Updating local files'
         if Dir.entries('.').include?('%s.%s' % [posfile_stub, extension])
