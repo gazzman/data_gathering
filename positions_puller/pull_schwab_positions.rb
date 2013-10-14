@@ -49,10 +49,13 @@ def get_schwab(user, pass, directory = 'Schwab')
     b.windows[0].use
 
     # Pull data for bank account
-    b.a(:href => 'https://investing.schwab.com/secure/cc/accounts?cmsid=P-1924981&lvl1=accounts').click
-    bank_acct = b.span(:id => 'spanOverlayAccountId').text.sub('...','')
-    bank_desc = b.span(:id => 'spanOverlayAccountName').text
-    bank_cash = b.span(:id => 'ctl00_wpm_ac_ac_ltd').text
+    b.a(:text => 'Balances').when_present.click
+    b.div(:id => 'accountSelector').a.click
+    b.span(:text => /Checking/).when_present.click
+    bank_desc, bank_acct = b.h2(:id => /AccountBalanceUserControl/).text.split[0..1]
+    bank_acct = bank_acct[-8..-1]
+    bank_cash = b.div(:id => /TotalBalAmt/).text
+    bank_cash.gsub!("$", "")
     # Logout
     puts 'Logging out'
     schwab_logout(b)
@@ -61,7 +64,6 @@ def get_schwab(user, pass, directory = 'Schwab')
     # Store the cash data
     fname = 'Bank.csv'
     fname_ts = 'Bank_' + Time.now.getutc.iso8601 + '.csv'
-
 
     headers = ['Symbol', 'Name', 'Quantity', 'Price', 'Market Value']
     f = File.new(fname_ts, 'w')
