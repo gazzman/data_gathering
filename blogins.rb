@@ -40,6 +40,7 @@ module BLogins
                         start_page='Positions')
         browser.goto(url)
 
+        browser.a(:text => 'Secure Login').when_present.click
         browser.text_field(:name => 'account').when_present.set user
         browser.text_field(:name => 'password').when_present.set pass
         browser.select_list(:name => 'firstPage').when_present.select start_page
