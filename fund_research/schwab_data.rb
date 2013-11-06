@@ -402,8 +402,19 @@ class SchwabData
             @data[header] = view
 
             # Get Ned Davis sector highlights
-            field, sector, ignore, date, recommendation = som.li(:text => /Ned Davis Research Sector Highlights/).text.split(/\n/)
+            ndsh = som.li(:text => /Ned Davis Research Sector Highlights/).text.split(/\n/)
+            ndsh_new = []
+            ndsh.each{|e| if e != 'PDF'
+                            ndsh_new += [e]
+                          end
+            }
+            field, sector, date, recommendation = ndsh_new
             date = date.split()[-1]
+            if /today/ =~ date.downcase
+                date = Date.today.to_s
+            elsif /yesterday/ =~ date.downcase
+                date = (Date.today - 1).to_s
+            end
             recommendation = recommendation.split()[-1]
 
             header = table + field
