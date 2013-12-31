@@ -1,12 +1,14 @@
 #!/usr/bin/ruby
+'''
+A script for printing the ticker symbols of investment
+choices a Fidelity 401k offers.
+
+'''
 require 'rubygems'
 
-require 'csv'
-require 'fastercsv'
-require 'fileutils'
-require 'headless'
-require 'time'
-require 'watir-webdriver'
+require 'blogins'
+
+include BLogins
 
 login_file = ARGV[0]
 
@@ -14,52 +16,30 @@ def pull_fidelity_positions(user, pass)
     headless = Headless.new
     headless.start
 
-    # Set some variables
-    url = 'http://401k.com'
-
     # Goto page    
-    $stderr.puts 'Opening url ' + url
     b = Watir::Browser.new :firefox
-    b.goto(url)
-
-    # Login
-    $stderr.puts 'Logging In'
-    b.text_field(:name => 'temp_id').set user
-    b.text_field(:name => 'PIN').set pass
-    b.input(:id => 'logButton').click
+    $stderr.puts 'Logging in'
+    fidelity_login(b, user, pass)
 
     # Grab the data
-    $stderr.puts 'Grabbing Data'
-    while !b.a(:title => 'Accounts').exists?
-        sleep(0.5)
-    end
-    b.a(:title => 'Accounts').click
+    $stderr.puts 'Navigating to Data'
+    b.a(:text => /Quick Links/).wait_until_present
+    b.a(:text => /Quick Links/).click
+    b.a(:text => "Investment Performance and Research").wait_until_present
+    b.a(:text => "Investment Performance and Research").click
 
-    while !b.a(:title => 'Review Investment Choices').exists?
-        sleep(0.5)
-    end
-    b.a(:title => 'Review Investment Choices').click
-
-    f = b.frame(:title => 'Main Content').frame(:title => 'Savings and Retirement Section').frame(:title => 'Section Content')    
-    as = f.table(:class => 'invBorder').table.tbody.as
-    for i in 0...as.length
-        title = as[i].text
-        as[i].click
-        b.windows[1].use
-        d = b.frame(:name => 'content').div(:class => 'header-wrapper')
-        if d.span(:class => 'subhead').exists?
-            puts [title, d.span(:class => 'subhead').text].join(',')
-        else
-            puts [title, "No symbol"].join(',')
+    $stderr.puts 'Sending Data to STDOUT'
+    b.tr(:class => "0AR row-border").wait_until_present
+    b.trs(:class => "0AR row-border").each{ |tr|
+        m = /\(([A-Z]+)\)/.match(tr.td.text)
+        if m
+            puts m[1]
         end
-        b.windows[1].close
-        f = b.frame(:title => 'Main Content').frame(:title => 'Savings and Retirement Section').frame(:title => 'Section Content')    
-        as = f.table(:class => 'invBorder').table.tbody.as
-    end
+    }
 
     # Logout
     $stderr.puts 'Logging out'
-    b.frame(:title => 'Site Navigation').a(:href => '/Catalina/LongBeach?Command=LOGOUT&Realm=netbenefits').click
+    fidelity_logout(b)
     b.close()
 
     headless.destroy
