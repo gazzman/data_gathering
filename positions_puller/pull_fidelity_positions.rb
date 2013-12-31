@@ -36,19 +36,13 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
 
     # Grab the data
     puts 'Grabbing Data'
-    while !b.a(:title => 'Accounts').exists?
-        sleep(0.5)
-    end
-    b.a(:title => 'Accounts').click
+    b.a(:text => 'Accounts').wait_until_present
+    b.a(:text => 'Accounts').click
 
-    while !b.frame(:name => 'mainapp').a(:text => /Portfolio Investments/).exists?
-        sleep(0.5)
-    end
+    b.frame(:name => 'mainapp').a(:text => /Portfolio Investments/).wait_until_present
     b.frame(:name => 'mainapp').a(:text => /Portfolio Investments/).click
 
-    while !b.frame(:title => 'Main Content').body.a(:onclick => 'displayCSVPage();').exists?
-        sleep(0.5)
-    end
+    b.frame(:title => 'Main Content').body.a(:onclick => 'displayCSVPage();').wait_until_present
     frame = b.frame(:title => 'Main Content')
     frame.body.a(:onclick => 'displayCSVPage();').click
     date = frame.div(:class => 'foot-notes').p.text.split[-2...-1]
