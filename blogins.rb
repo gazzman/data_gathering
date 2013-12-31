@@ -65,7 +65,7 @@ module BLogins
     end
 
     def fidelity_logout(browser)
-        browser.a(:text => 'Log Out').click
+        browser.frame(:title => 'Site Navigation').a(:text => 'Log Out').click
     end
 
     ########################################################################
