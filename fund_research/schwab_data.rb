@@ -82,6 +82,15 @@ class SchwabData
 
         div = @browser.div(:id => 'chanL2')
         div.ul(:class => 'selected').li(:class => 'active').wait_until_present
+        typecount = 0
+        while div.ul(:class => 'selected').li(:class => 'active').text == 'Markets' do
+            sleep 0.25
+            typecount += 1
+            if typecount >= 50
+                @logger.error "Unable to ascertain type for " + symbol
+                return nil
+            end
+        end
         @type = div.ul(:class => 'selected').li(:class => 'active').text
     end
 
@@ -703,12 +712,16 @@ class SchwabData
 
         # Get equity sectors
         if equity.div(:id => 'modEquitySectors').exists?
-            get_allocation_date(equity.div(:id => 'modEquitySectors'), 'sector_allocation.')
+            sectors = equity.div(:id => 'modEquitySectors')
+            get_allocation_date(sectors, 'sector_allocation.')
             @logger.info "\tGetting equity sector distribution"
-            equity.div(:id => 'modEquitySectors').tbody.trs.each {|tr|
-                header = 'sector_allocation.' + tr.th.text
+            sectors.tbodys.each {|tbody|
+                data = tbody.tr.text.split()
+                sector = data[0...-1].join(' ')
+                pct = data[-1]
+                header = 'sector_allocation.' + sector
                 @headers << header
-                @data[header] = tr.td.text
+                @data[header] = pct
             }
         end
 

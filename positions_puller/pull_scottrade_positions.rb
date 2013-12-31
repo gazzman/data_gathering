@@ -43,11 +43,10 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
     b.div(:class => 'detail-export-container').click
 
     b.a(:href => 'Balances.aspx').click
-    b.a(:id => 'BalanceSummary1_AccountBalanceTabStrip1_lbtnDetailed').click
-    broker_cash = b.span(:id => 'DetailedBalance1_lblCashBalanceTrading').text
+    broker_cash = b.span(:id => 'ctl00_PageContent_BalanceSummary1_lblTotalCashBalance').text
 
     begin
-        bank_cash = b.span(:id => 'DetailedBalance1_lblTotalAvailableBankBalance').text
+        bank_cash = b.span(:id => 'ctl00_PageContent_BalanceSummary1_lblTotalBankBalance').text
     rescue Watir::Exception::UnknownObjectException
         bank_cash = 0
     end
