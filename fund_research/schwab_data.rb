@@ -324,7 +324,7 @@ class SchwabData
         @headers << header
         @data[header] = eps_date
 
-        if !(eds[1].text =~ /does not currently pay/)
+        if !(eds[1].text =~ /does not currently pay/ || eds[1].text =~ /information not available/) 
             eds[1].trs.each {|tr|
                 header = table + tr.th.text.gsub("\n", " ")
                 @headers << header
@@ -388,9 +388,11 @@ class SchwabData
         if @main.div(:id => 'sectorOverviewModule').ul(:class => 'list dividers rules').exists?
             som = @main.div(:id => 'sectorOverviewModule').ul(:class => 'list dividers rules')
             # Get the Schwab industry rating data
-            field, rating, industry, date = som.li(:text => /Schwab Industry Rating/).text.split(/\n/)
-            rating = rating.split()[-1]
-            date = date.split()[-1]
+            field = 'Schwab Industry Rating'
+            rating, industry_date, date = som.li(:text => /Schwab Industry Rating/).div.divs.to_a
+            rating = rating.attribute_value('textContent').split()[-1]
+            industry = industry_date.text.split(/\n/)[0]
+            date = date.text.split()[-1]
 
             header = table + field
             @headers << header
