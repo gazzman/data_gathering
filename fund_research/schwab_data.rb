@@ -12,10 +12,11 @@ class SchwabData
     attr_accessor :browser, :frame, :main, :logger, :country_data, :alt_id, :headers, :data
 
     def initialize(user, pass, opts={})
-        default = {:logfile => STDOUT, :log_age => nil}
+        default = {:logfile => STDOUT, :log_age => nil, :level => Logger::INFO}
         opts = default.merge(opts)
 
         @logger = Logger.new(opts[:logfile], opts[:log_age])
+        @logger.level = opts[:level]
         @logger.info 'Initializing browser and data'
         @browser = Watir::Browser.new
         @frame = @main = @type = @headers = @data = nil
@@ -71,7 +72,7 @@ class SchwabData
     end
 
     def navigate_to_research_for(symbol)
-        @logger.info 'Navigating to research tab for ' + symbol
+        @logger.debug 'Navigating to research tab for ' + symbol
         @browser.div(:id => 'chanL1').ul.li(:text => 'Research').a.click
         @frame = @browser.frame(:id => 'wsodIFrame')
 
@@ -99,9 +100,9 @@ class SchwabData
         if !@frame.ul(:class => 'contain nav page').li(:class => 'active').exists?
             @logger.error "No fund selected. Select a fund to research first."
         elsif @frame.ul(:class => 'contain nav page').li(:class => 'active').text.include?(tabname)
-            @logger.info "Already at the \'" + tabname + "\' tab."
+            @logger.debug "Already at the \'" + tabname + "\' tab."
         elsif @frame.ul(:class => 'contain nav page').li(:text => tabname).exists?
-            @logger.info 'Navigating to ' + tabname
+            @logger.debug 'Navigating to ' + tabname
             @frame.ul(:class => 'contain nav page').li(:text => tabname).a.span.click
             @frame.div(:id => 'mainContent').wait_until_present
         else
@@ -128,7 +129,7 @@ class SchwabData
     end
 
     def get_description(prefix='tickers.')
-        @logger.info 'Getting description'
+        @logger.debug 'Getting description'
         header = prefix + 'Description'
         @headers << header
         @frame.div(:id => 'modFirstGlance').wait_until_present
@@ -175,14 +176,14 @@ class SchwabData
     end
 
     def get_allocation_date(div, prefix='')
-        @logger.info 'Getting date'
+        @logger.debug 'Getting date'
         header = prefix + 'date'
         @headers << header
         @data[header] = div.span(:class => 'subLabel aside').text.split[-1]
     end
 
     def get_asset_allocation(prefix='asset_allocation.')
-        @logger.info 'Getting asset allocation overview'
+        @logger.debug 'Getting asset allocation overview'
         ass_allocation = @frame.div(:id => 'modAssetAllocationOverview')
         get_allocation_date(ass_allocation, prefix=prefix)
         aa_table = ass_allocation.table(:class => 'data allocationTable')
@@ -197,7 +198,7 @@ class SchwabData
     end
 
     def get_country_allocation(prefix='country_allocation.')
-        @logger.info 'Getting country allocation'
+        @logger.debug 'Getting country allocation'
         country_allocation = @frame.div(:id => 'modCountryAllocation')
         get_allocation_date(country_allocation, prefix=prefix)
         country_allocation.div(:class => 'col').tbody.trs.each {|tr|
@@ -209,7 +210,7 @@ class SchwabData
 
     def get_US_nonUS_allocation(div, ass_class, prefix='')
         get_allocation_date(div, prefix=prefix)
-        @logger.info "\tGetting domestic allocation"
+        @logger.debug "\tGetting domestic allocation"
         pfx = ass_class
         hs = div.thead.trs[1].ths[1..2].collect {|th| th.text}
         div.tbody.trs[1..2].each {|tr|
@@ -272,19 +273,19 @@ class SchwabData
     def pull_equity_data(symbol)
         table = 'equity.'
         navigate_to_tab('summary')
-        @logger.info 'Getting date'
+        @logger.debug 'Getting date'
         header = table + 'date'
         @headers << header
         @data[header] = @frame.div(:id => 'modFirstGlance').div(:class => 'subLabel').text.split[-1]
 
         if @frame.div(:id => 'modFirstGlance').span(:text => /Schwab Equity Rating/).exists?
-            @logger.info 'Getting Schwab Equity Ratng'
+            @logger.debug 'Getting Schwab Equity Ratng'
             header = table + 'schwab_equity_rating'
             @headers << header
             @data[header] = @frame.div(:id => 'modFirstGlance').span(:text => /Schwab Equity Rating/).text.split[-1]
         end
 
-        @logger.info 'Getting country info'
+        @logger.debug 'Getting country info'
         header = 'country_allocation.date'
         @headers << header
         @data[header] = Date.today.to_s
@@ -304,7 +305,7 @@ class SchwabData
         end
 
         navigate_to_subtab('quote details')
-        @logger.info 'Getting details'
+        @logger.debug 'Getting details'
         @main.div(:id => 'modQuoteDetails').wait_until_present
         detail = @main.div(:id => 'modQuoteDetails')
         detail.div(:class => 'colRight').table(:class => 'data combo').tbody.trs.each {|tr|
@@ -313,7 +314,7 @@ class SchwabData
             @data[header] = tr.td.text
         }
 
-        @logger.info 'Getting EPS, dividend and share info'
+        @logger.debug 'Getting EPS, dividend and share info'
         eds = detail.div(:class => 'grid halves').tables(:class => 'data combo')
         eps_text = eds[0].tbody.tr.th.text.split
         eps_date = eps_text[-1][1...-1]
@@ -332,7 +333,7 @@ class SchwabData
             }
         end            
 
-        @logger.info 'Getting Mkt Cap Info'
+        @logger.debug 'Getting Mkt Cap Info'
         header = 'mkt_cap_allocation.date'
         @headers << header
         @data[header] = Date.today.to_s
@@ -351,7 +352,7 @@ class SchwabData
             @data[header] = tr.td.text
         }
 
-        @logger.info 'Getting funds holding this stock'
+        @logger.debug 'Getting funds holding this stock'
         hs = @main.div(:id => 'fundsHoldingThisCompanyModule').thead.ths.collect {|th| th.text}
         trs = @main.div(:id => 'fundsHoldingThisCompanyModule').tbody.trs
         if @main.div(:id => 'fundsHoldingThisCompanyModule').tbody.text =~ /No ETFs Available/
@@ -367,14 +368,14 @@ class SchwabData
             end
         end
         navigate_to_subtab('sector overview')
-        @logger.info 'Getting sector categories'
+        @logger.debug 'Getting sector categories'
         @main.table(:id => 'perfVsPeersTable').wait_until_present
         @main.table(:id => 'perfVsPeersTable').tbody.ths[1..-1].each {|th|
             header = table + th.div(:class => 'subLabel').text
             @headers << header
             @data[header] = th.a.text
             if header == table + 'Sector'
-                @logger.info 'Getting Sector Info'
+                @logger.debug 'Getting Sector Info'
                 header = 'sector_allocation.date'
                 @headers << header
                 @data[header] = Date.today.to_s
@@ -442,7 +443,7 @@ class SchwabData
         end
 
         navigate_to_tab('peers')
-        @logger.info 'Getting peer data'
+        @logger.debug 'Getting peer data'
         peers = @main.div(:id => 'peersComparison').tbody(:class => 'sortTBody')
         peers.trs[1..-1].each_with_index {|tr, i|
             header = table + 'Peer Symbol ' + (i+1).to_s
@@ -451,7 +452,7 @@ class SchwabData
         }
 
         navigate_to_tab('ratios')
-        @logger.info 'Getting various ratios'
+        @logger.debug 'Getting various ratios'
         if @main.a(:text => 'View as Ratio').exists?
             @main.a(:text => 'View as Ratio').click
         end
@@ -464,7 +465,7 @@ class SchwabData
                 @data[header] = tr.td.text
             }
         }
-        @logger.info 'Getting Asset Allocation'
+        @logger.debug 'Getting Asset Allocation'
         header = 'asset_allocation.date'
         @headers << header
         @data[header] = Date.today.to_s
@@ -479,24 +480,24 @@ class SchwabData
     def pull_etf_data()
         table = 'fund.'
         navigate_to_tab('summary')
-        @logger.info 'Getting date'
+        @logger.debug 'Getting date'
         header = table + 'date'
         @headers << header
         @data[header] = @frame.div(:id => 'modFirstGlance').div(:class => 'subLabel floatLeft').text.split[-1]
 
         navigate_to_subtab('quote details')
 
-        @logger.info 'Getting profile'
+        @logger.debug 'Getting profile'
         get_profile('FundProfileModule', table)
 
-        @logger.info 'Getting details date'
+        @logger.debug 'Getting details date'
         detail = @main.div(:class => 'quoteDetailsModule')
         d = detail.div(:class => 'colRight').span(:class => 'subLabel').text.split[-1]
         header = table + 'Details Date'
         @headers << header
         @data[header] = d
 
-        @logger.info 'Getting details'
+        @logger.debug 'Getting details'
         @main.div(:class => 'quoteDetailsModule').wait_until_present
         detail.div(:class => 'colRight').tbodys.each {|tbody|
             tbody.trs.each {|tr|
@@ -514,7 +515,7 @@ class SchwabData
             @main.span(:text => 'Top 10 Holdings').click
         end
         if @main.div(:id => 'modPortfolioHoldings').div(:id => 'modTopTenHoldingsTableModule').exists?
-            @logger.info 'Getting top 10 holdings'
+            @logger.debug 'Getting top 10 holdings'
             holdings_div = @main.div(:id => 'modPortfolioHoldings')
             header = 'holdings.date'
             @headers << header
@@ -534,7 +535,7 @@ class SchwabData
             end
         elsif @main.div(:id => 'SchwabFundsPortfolioWeightingsModule').div(:id => 'modPortfolioWeightingsTopTenHoldingsModule').exists?
             # The page is slightly different for Schwab ETFs        
-            @logger.info 'Getting Schwab fund top 10 holdings'
+            @logger.debug 'Getting Schwab fund top 10 holdings'
             holdings_div = @main.div(:id => 'SchwabFundsPortfolioWeightingsModule')
             header = 'holdings.date'
             @headers << header
@@ -585,7 +586,7 @@ class SchwabData
         table = 'fund.'
         navigate_to_tab('fund facts & fees')
 
-        @logger.info 'Getting expense data'
+        @logger.debug 'Getting expense data'
         @main.div(:id => 'FundFeesAndExpenses').wait_until_present
         @main.div(:id => 'FundFeesAndExpenses').trs[0..2].each {|tr|
             header = table + tr.th.text.split("\n")[0].strip
@@ -594,13 +595,13 @@ class SchwabData
         }
 
         navigate_to_tab('summary')
-        @logger.info 'Getting date'
+        @logger.debug 'Getting date'
         header = table + 'date'
         @headers << header
         @data[header] = @frame.div(:id => 'modFirstGlance').p(:class => 'subLabel flushTop').text.split[-1]
 
         @main.span(:text => 'Historical Quote').click
-        @logger.info 'Getting distribution info'
+        @logger.debug 'Getting distribution info'
         @main.div(:class => 'col').table(:class => 'data combo').wait_until_present
         distro = @main.div(:class => 'col').table(:class => 'data combo')
         distro.trs.each {|tr|
@@ -615,7 +616,7 @@ class SchwabData
             end
         }
 
-        @logger.info 'Getting details'
+        @logger.debug 'Getting details'
         @main.div(:class => 'colRight').wait_until_present
         detail = @main.div(:class => 'colRight').tbody
         detail.trs.each {|tr|
@@ -624,10 +625,10 @@ class SchwabData
             @data[header] = tr.td.text.strip
         }
 
-        @logger.info 'Getting profile'
+        @logger.debug 'Getting profile'
         get_profile('segment ruleTop flushTop fundProfileModule', table)
 
-        @logger.info 'Getting top 10 holdings'
+        @logger.debug 'Getting top 10 holdings'
         if @main.span(:text => 'Top 10 Holdings').exists?
             @main.span(:text => 'Top 10 Holdings').click
         end
@@ -684,7 +685,7 @@ class SchwabData
         table = 'equity.'
         equity = @frame.div(:id => 'modMFPortfolioEquityModule')
 
-        @logger.info 'Getting equity data'
+        @logger.debug 'Getting equity data'
         # Get US/Non-US
         if equity.div(:id => 'modEquityAllocation').exists?
             get_US_nonUS_allocation(equity.div(:id => 'modEquityAllocation'), 'Equity', table + 'us_allocation_')
@@ -693,7 +694,7 @@ class SchwabData
         # Get regions
         if equity.div(:id => 'modEquityRegions').exists?
             get_allocation_date(equity.div(:id => 'modEquityRegions'), 'region_allocation.')
-            @logger.info "\tGetting regions"
+            @logger.debug "\tGetting regions"
             c = 0
             equity.div(:id => 'modEquityRegions').trs(:class => 'ecSet collapsed').each {|tr|
                     tr.th.div.click
@@ -716,7 +717,7 @@ class SchwabData
         if equity.div(:id => 'modEquitySectors').exists?
             sectors = equity.div(:id => 'modEquitySectors')
             get_allocation_date(sectors, 'sector_allocation.')
-            @logger.info "\tGetting equity sector distribution"
+            @logger.debug "\tGetting equity sector distribution"
             sectors.tbodys.each {|tbody|
                 data = tbody.tr.text.split()
                 sector = data[0...-1].join(' ')
@@ -730,7 +731,7 @@ class SchwabData
         # Get Market Cap
         if equity.div(:id => 'modEquityMarketCap').exists?
             get_allocation_date(equity.div(:id => 'modEquityMarketCap'), 'mkt_cap_allocation.')
-            @logger.info "\tGetting market caps"
+            @logger.debug "\tGetting market caps"
             equity.div(:id => 'modEquityMarketCap').tbody.trs.each {|tr|
                 header = 'mkt_cap_allocation.' + tr.th.text
                 @headers << header
@@ -741,7 +742,7 @@ class SchwabData
         # Get Ratios
         if equity.div(:id => 'modPortfolioStatisticalData').exists?
             get_allocation_date(equity.div(:id => 'modPortfolioStatisticalData'), table + 'stats_')
-            @logger.info "\tGetting ratios"
+            @logger.debug "\tGetting ratios"
             equity.div(:id => 'modPortfolioStatisticalData').tbody.trs.each {|tr|
                 header = table + tr.th.text
                 @headers << header
@@ -757,7 +758,7 @@ class SchwabData
         table = 'fixed_income.'
         fixed = @frame.div(:id => 'modMFPortfolioFixedIncomeModule')
 
-        @logger.info 'Getting fixed income data'
+        @logger.debug 'Getting fixed income data'
         # Get US/Non-US
         if fixed.div(:id => 'modFixedIncomeAllocation').exists?
             get_US_nonUS_allocation(fixed.div(:id => 'modFixedIncomeAllocation'), 'Fixed Income', table + 'us_allocation_')
@@ -766,7 +767,7 @@ class SchwabData
         # Get fixed income sectors
         if fixed.div(:id => 'modFixedIncomeSectors').exists? 
             get_allocation_date(fixed.div(:id => 'modFixedIncomeSectors'), table + 'sectors_')
-            @logger.info "\tGetting fixed income sectors"
+            @logger.debug "\tGetting fixed income sectors"
             c = 0
             fixed.div(:id => 'modFixedIncomeSectors').trs(:class => 'ecSet collapsed').each {|tr|
                     tr.th.span.click
@@ -788,7 +789,7 @@ class SchwabData
         # Get credit ratings
         if fixed.div(:id => 'modFixedIncomeCreditRating').exists?
             get_allocation_date(fixed.div(:id => 'modFixedIncomeCreditRating'), table + 'ratings_')
-            @logger.info "\tGetting credit ratings"
+            @logger.debug "\tGetting credit ratings"
             fixed.div(:id => 'modFixedIncomeCreditRating').div(:class => 'col').tbody.trs.each {|tr|
                 header = table + tr.th.text
                 @headers << header
@@ -799,7 +800,7 @@ class SchwabData
         # Get maturities
         if fixed.div(:id => 'modFixedIncomeMaturity').exists?
             get_allocation_date(fixed.div(:id => 'modFixedIncomeMaturity'), table + 'maturity_')
-            @logger.info "\tGetting maturities"
+            @logger.debug "\tGetting maturities"
             fixed.div(:id => 'modFixedIncomeMaturity').div(:class => 'col').tbody.trs.each {|tr|
                 header = table + tr.th.text
                 @headers << header
@@ -810,7 +811,7 @@ class SchwabData
         # Get stats
         if fixed.div(:id => 'modFixedIncomeStatistics').exists?
             get_allocation_date(fixed.div(:id => 'modFixedIncomeStatistics'), table + 'stats_')
-            @logger.info "\tGetting stats"
+            @logger.debug "\tGetting stats"
             fixed.div(:id => 'modFixedIncomeStatistics').tbody.trs.each {|tr|
                 header = table + tr.th.text.gsub("\n", " ")
                 @headers << header
