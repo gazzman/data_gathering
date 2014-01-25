@@ -46,8 +46,8 @@ def pull_fidelity_positions(user, pass, directory = 'Fidelity')
     frame = b.frame(:title => 'Main Content')
     frame.body.a(:onclick => 'displayCSVPage();').click
     date = frame.div(:class => 'foot-notes').p.text.split[-2...-1]
-    date = '%s 16:00:00' % date
-    date = Time.parse(date).iso8601
+    date = '%s 16' % date
+    date = Time.strptime(date, '%m/%d/%Y %H').iso8601
 
     # Logout
     puts 'Logging out'
