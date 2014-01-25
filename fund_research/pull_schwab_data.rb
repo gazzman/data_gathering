@@ -1,7 +1,6 @@
 #!/usr/bin/ruby
 require 'rubygems'
 
-require 'fastercsv'
 require 'fileutils'
 require 'headless'
 require 'time'
