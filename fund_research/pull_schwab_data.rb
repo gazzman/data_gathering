@@ -83,9 +83,9 @@ def get_data(user, pass, sd, symbols, progname=nil)
                     raise  NameError, "Asian characters in header %s retrying" % header
                 end
             }
-            csv = FCSV.open(fname_ts, 'w')
-            csv << FCSV::Row.new(headers, headers, header_row = true)
-            csv << FCSV::Row.new(headers, data)
+            csv = CSV.open(fname_ts, 'w')
+            csv << CSV::Row.new(headers, headers, header_row = true)
+            csv << CSV::Row.new(headers, data)
             csv.close
             sd.logger.info 'Wrote data to ' + fname_ts
 

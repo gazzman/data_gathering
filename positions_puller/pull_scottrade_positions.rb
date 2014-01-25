@@ -1,4 +1,5 @@
 #!/usr/bin/ruby
+# coding: UTF-8
 require 'blogins'
 
 include BLogins
@@ -64,13 +65,13 @@ def pull_scottrade_positions(user, pass, directory = 'Scottrade')
 
     f = File.new(fname_ts, 'w')
     f << "Positions as of %s\n" % date
-    csv = FCSV.new(f, {:headers => :first_row, :write_headers => true})
-    head_row = FCSV::Row.new(headers, headers, header_row = true)
+    csv = CSV.new(f, {:headers => :first_row, :write_headers => true})
+    head_row = CSV::Row.new(headers, headers, header_row = true)
     csv << head_row
-    field_row = FCSV::Row.new(headers, ['USD', 'Brokerage', broker_cash, 1, 
+    field_row = CSV::Row.new(headers, ['USD', 'Brokerage', broker_cash, 1, 
                                         broker_cash])
     csv << field_row
-    field_row = FCSV::Row.new(headers, ['USD', 'Bank', bank_cash, 1, 
+    field_row = CSV::Row.new(headers, ['USD', 'Bank', bank_cash, 1, 
                                         bank_cash])
     csv << field_row
     csv.close()

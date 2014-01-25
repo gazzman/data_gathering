@@ -3,7 +3,6 @@ module BLogins
     require 'rubygems'
 
     require 'csv'
-    require 'fastercsv'
     require 'fileutils'
     require 'headless'
     require 'time'
