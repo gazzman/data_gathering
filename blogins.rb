@@ -44,7 +44,7 @@ module BLogins
         browser.text_field(:name => 'password').when_present.set pass
         browser.select_list(:name => 'firstPage').when_present.select start_page
 
-        browser.button(:class => 'login-btn').click        
+        browser.button(:class => 'secure-login-btn').click        
     end
 
     def scottrade_logout(browser)
