@@ -38,7 +38,9 @@ def get_schwab(user, pass, directory = 'Schwab')
     puts 'Grabbing Data'
 
     # Show full descriptions
-    b.execute_script("javascript:swapColumnWithResize('longtext','ctl00_wpm_P_P_outerDiv','ctl00_wpm_P_P_hDOrP','ctl00_wpm_P_P_hLOrS')")
+    if b.a(:text => "Full").visible?
+        b.a(:text => "Full").click
+    end
 
     # Pull all brokerage positions
     b.div(:id => 'accountSelector').a.click
