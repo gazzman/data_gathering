@@ -88,7 +88,7 @@ def get_schwab(user, pass, directory = 'Schwab')
     puts "Copied to " + fname + "\n\n"
 
     # Copy the position data to the simple filename
-    update_local_positions_file('All_Accounts_Positions')
+    update_local_positions_file('All-Accounts-Positions')
 
     headless.destroy
 end
